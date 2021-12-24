@@ -81,11 +81,17 @@ module.handler = function (node, node_settings)
     return;
   end
 
-  if node_settings.buffer then
-    local bufnr = type(node_settings.buffer) == 'number' and node_settings.buffer or vim.api.nvim_get_current_buf()
-    Mapper.map_buf(bufnr, node_settings.mode, node.lhs, node.rhs, node_settings.options, category, id, description)
-  else
-    Mapper.map(node_settings.mode, node.lhs, node.rhs, node_settings.options, category, id, description)
+  for mode in string.gmatch(node_settings.mode, '.') do
+    local sanitizedMode = mode == '_'
+      and ''
+      or mode
+
+    if node_settings.buffer then
+      local bufnr = type(node_settings.buffer) == 'number' and node_settings.buffer or vim.api.nvim_get_current_buf()
+      Mapper.map_buf(bufnr, sanitizedMode, node.lhs, node.rhs, node_settings.options, category, id, description)
+    else
+      Mapper.map(sanitizedMode, node.lhs, node.rhs, node_settings.options, category, id, description)
+    end
   end
 end
 
